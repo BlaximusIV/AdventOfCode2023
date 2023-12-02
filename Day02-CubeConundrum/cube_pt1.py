@@ -28,7 +28,6 @@ def process_line(line):
     else:
         return 0
 
-calibration_lines = []
 with open("input.txt") as input:
     for line in input:
         POSSIBLE_GAMES.append(process_line(line.rstrip('\n')))
