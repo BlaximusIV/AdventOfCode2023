@@ -60,11 +60,11 @@ def expand_spaces(horizontal_spaces, vertical_spaces, galaxies_array):
         x_increment = 0
         for i in range(len(horizontal_spaces)):
             if galaxy.y > horizontal_spaces[i]:
-                y_increment += 1
+                y_increment += 999_999
 
         for i in range(len(vertical_spaces)):
             if galaxy.x > vertical_spaces[i]:
-                x_increment += 1
+                x_increment += 999_999
 
         galaxy.y += y_increment
         galaxy.x += x_increment
