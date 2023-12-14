@@ -5,7 +5,7 @@ ROUND_ROCK = "O"
 def main():
     start = time.time()
     map = []
-    with open("test_input.txt") as f:
+    with open("input.txt") as f:
         input = f.readlines()
         for line in input:
             parts = []
@@ -13,18 +13,60 @@ def main():
                 parts.append(char)
             map.append(parts)
 
-    cycle_count = 3
-    for i in range(cycle_count):
+    cycle_length = find_cycle_length(map)
+    remaining_iterations = 1_000_000_000 % cycle_length
+    cycle_rocks(map, remaining_iterations + cycle_length)
+
+    total_weight = find_north_beam_weight(map)
+    print(f'Total weight: {total_weight}')
+    
+    print(f'Time: {time.time() - start}')
+
+def cycle_rocks(map, cycle_count):
+    for _ in range(cycle_count):
         move_rocks_north(map)
         move_rocks_west(map)
         move_rocks_south(map)
         move_rocks_east(map)
-        # print_map(map)
 
-    # now figure out how much they weigh on the north beam
-    total_weight = find_north_beam_weight(map)
-    print(f'Total weight: {total_weight}')
-    print(f'Time: {time.time() - start}')
+def find_cycle_length(map):
+    map_copy = make_map_copy(map)
+    map_copy2 = make_map_copy(map)
+
+    iteration_count = 0
+    while True:
+        cycle_a = 1
+        cycle_b = 2
+
+        cycle_rocks(map_copy, cycle_a)
+        cycle_rocks(map_copy2, cycle_b)
+
+        iteration_count += 1
+        if are_maps_equal(map_copy, map_copy2):
+            break
+
+        if iteration_count % 100 == 0:
+            print(f'Iteration: {iteration_count}')
+
+    return iteration_count
+
+def make_map_copy(map):
+    map_copy = []
+    for i in range(len(map)):
+        map_copy.append([])
+        for j in range(len(map[i])):
+            map_copy[i].append(map[i][j])
+    
+    return map_copy
+    
+
+def are_maps_equal(map1, map2):
+    for i in range(len(map1)):
+        for j in range(len(map1[i])):
+            if map1[i][j] != map2[i][j]:
+                return False
+    
+    return True
 
 def move_rocks_north(map):
     for i in range(len(map)):
