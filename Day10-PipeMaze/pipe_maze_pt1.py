@@ -10,6 +10,10 @@ class Coordinate:
     def coordinate_char(self, map):
         return map[self.y][self.x]
 
+SOUTH = "V"
+NORTH = "^"
+EAST = ">"
+WEST = "<"
 
 def main():
     map = []
@@ -29,7 +33,12 @@ def main():
     # find the first two coordinates to the path:
     current_coordinate = find_traversible_neighbors(map, start_coordinate)[0]
     previous_coordinate = start_coordinate
+
+    # find start coordinate direction
+    start_direction = NORTH # figure out
+
     loop_coordinates = { start_coordinate.y: [start_coordinate.x] }
+    loop_directions = { start_coordinate.y: { start_coordinate.x: start_direction }}
     while not current_coordinate == start_coordinate:
         if current_coordinate.y not in loop_coordinates:
             loop_coordinates[current_coordinate.y] = [current_coordinate.x]
@@ -39,7 +48,34 @@ def main():
         char_one = current_coordinate.coordinate_char(map)
         temp_coordinate = current_coordinate
         current_coordinate = get_next_coordinate(char_one, current_coordinate, previous_coordinate)
+        # Add direction to loop_directions
+        
         previous_coordinate = temp_coordinate
+
+    def get_direction(map, previous_coordinate, previous_direction, current_coordinate):
+        previous_char = previous_coordinate.coordinate_char(map)
+        current_char = current_coordinate.coordinate_char(map)
+        if previous_char == "|" and current_char == "|":
+            return previous_direction
+        elif previous_char == "-" and current_char == "-":
+            return previous_direction
+        elif previous_direction == NORTH:
+            if current_char in [ "7", "F" ]:
+                return NORTH
+        elif previous_direction == SOUTH:
+            if current_char in [ "J", "L" ]:
+                return SOUTH
+        elif previous_coordinate.y < current_coordinate.y:
+            return SOUTH
+        elif previous_coordinate.y > current_coordinate.y:
+            return NORTH
+        elif previous_coordinate.x > current_coordinate.x:
+            return WEST
+        elif previous_coordinate.x < current_coordinate.x:
+            return EAST
+        else:
+            raise Exception("Unknown direction")
+
 
     # print the loop coordinates
     # find the min and max x and y values
@@ -51,7 +87,7 @@ def main():
         line = ""
         for j in range(min_x, max_x):
             if i in loop_coordinates and j in loop_coordinates[i]:
-                line += " X "
+                line += " " + map[i][j] + " "
             else:
                 line += " . "
         print(line.strip())
