@@ -13,7 +13,7 @@ class Coordinate:
 
 def main():
     map = []
-    with open("input.txt") as f:
+    with open("test_input.txt") as f:
         input = f.readlines()
         for line in input:
             map.append(line.strip("\n"))
@@ -27,18 +27,35 @@ def main():
                 break
 
     # find the first two coordinates to the path:
-    current_coordinates = find_traversible_neighbors(map, start_coordinate)
-    previous_coordinates = [start_coordinate, start_coordinate]
-    steps = 1
-    while not current_coordinates[0] == current_coordinates[1]:
-        char_one = current_coordinates[0].coordinate_char(map)
-        char_two = current_coordinates[1].coordinate_char(map)
-        current_coordinates[0], previous_coordinates[0] = get_next_coordinate(char_one, current_coordinates[0], previous_coordinates[0])
-        current_coordinates[1], previous_coordinates[1] = get_next_coordinate(char_two, current_coordinates[1], previous_coordinates[1])
+    current_coordinate = find_traversible_neighbors(map, start_coordinate)[0]
+    previous_coordinate = start_coordinate
+    loop_coordinates = { start_coordinate.y: [start_coordinate.x] }
+    while not current_coordinate == start_coordinate:
+        if current_coordinate.y not in loop_coordinates:
+            loop_coordinates[current_coordinate.y] = [current_coordinate.x]
+        else:
+            loop_coordinates[current_coordinate.y].append(current_coordinate.x)
 
-        steps += 1
+        char_one = current_coordinate.coordinate_char(map)
+        temp_coordinate = current_coordinate
+        current_coordinate = get_next_coordinate(char_one, current_coordinate, previous_coordinate)
+        previous_coordinate = temp_coordinate
 
-    print(f'Farthest point is {steps} steps away')
+    # print the loop coordinates
+    # find the min and max x and y values
+    min_x = 0
+    max_x = len(map[0])
+    min_y = 0
+    max_y = len(map)
+    for i in range(min_y, max_y):
+        line = ""
+        for j in range(min_x, max_x):
+            if i in loop_coordinates and j in loop_coordinates[i]:
+                line += " X "
+            else:
+                line += " . "
+        print(line.strip())
+        print()
 
 
 def find_traversible_neighbors(map, coordinate):
@@ -61,33 +78,33 @@ def find_traversible_neighbors(map, coordinate):
 def get_next_coordinate(char, coordinate, previous_coordinate):
     if char == "|":
         if previous_coordinate.y < coordinate.y:
-            return Coordinate(coordinate.x, coordinate.y + 1), coordinate
+            return Coordinate(coordinate.x, coordinate.y + 1)
         else:
-            return Coordinate(coordinate.x, coordinate.y - 1), coordinate
+            return Coordinate(coordinate.x, coordinate.y - 1)
     elif char == "-":
         if previous_coordinate.x < coordinate.x:
-            return Coordinate(coordinate.x + 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x + 1, coordinate.y)
         else:
-            return Coordinate(coordinate.x - 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x - 1, coordinate.y)
     elif char == "L":
         if previous_coordinate.x > coordinate.x:
-            return Coordinate(coordinate.x, coordinate.y -1), coordinate
+            return Coordinate(coordinate.x, coordinate.y -1)
         else:
-            return Coordinate(coordinate.x + 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x + 1, coordinate.y)
     elif char == "J":
         if previous_coordinate.y < coordinate.y:
-            return Coordinate(coordinate.x - 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x - 1, coordinate.y)
         else:
-            return Coordinate(coordinate.x, coordinate.y - 1), coordinate
+            return Coordinate(coordinate.x, coordinate.y - 1)
     elif char == "7":
         if previous_coordinate.y > coordinate.y:
-            return Coordinate(coordinate.x - 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x - 1, coordinate.y)
         else:
-            return Coordinate(coordinate.x, coordinate.y + 1), coordinate
+            return Coordinate(coordinate.x, coordinate.y + 1)
     elif char == "F":
         if previous_coordinate.x > coordinate.x:
-            return Coordinate(coordinate.x, coordinate.y + 1), coordinate
+            return Coordinate(coordinate.x, coordinate.y + 1)
         else:
-            return Coordinate(coordinate.x + 1, coordinate.y), coordinate
+            return Coordinate(coordinate.x + 1, coordinate.y)
 
 main()
