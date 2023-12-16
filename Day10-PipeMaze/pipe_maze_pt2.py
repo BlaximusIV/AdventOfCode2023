@@ -17,7 +17,7 @@ WEST = "<"
 
 def main():
     map = []
-    with open("test_input.txt") as f:
+    with open("input.txt") as f:
         input = f.readlines()
         for line in input:
             map.append(line.strip("\n"))
@@ -43,8 +43,11 @@ def main():
         # find the next coordinate and direction
         current_coordinate, current_direction = find_next_coordinate(current_coordinate, current_direction, map)
 
-    # find the tiles inside the loop. If the tile is inside the loop, the first loop tile it connects with to the east will be facing north
-    print_loop(loop_path_tiles, map)
+    # print the loop path
+    inside_tile_count = count_inside_tiles(map, loop_path_tiles)
+    print(f"Number of tiles inside the loop: {inside_tile_count}")
+
+    # print_loop(loop_path_tiles, map)
 
 def find_starting_orientation(start_coordinate, map):
     start_direction = None
@@ -151,5 +154,25 @@ def print_loop(loop_path_tiles, map):
             else:
                 print(" ", end="")
         print()
+
+def count_inside_tiles(map, loop_path_tiles):
+    # find the tiles inside the loop. If the tile is inside the loop, the first loop tile it connects with to the east will be facing north
+    inside_tiles = 0
+    for i in range(len(map)):
+        if i not in loop_path_tiles:
+            continue
+        for j in range(len(map[i])):
+            if j not in loop_path_tiles[i]:
+                # find the first loop tile to the east or the edge of the map
+                for k in range(j + 1, len(map[i])):
+                    if k in loop_path_tiles[i]:
+                        if loop_path_tiles[i][k] == SOUTH:
+                            inside_tiles += 1
+                        break
+            else:
+                continue
+
+
+    return inside_tiles
 
 main()
