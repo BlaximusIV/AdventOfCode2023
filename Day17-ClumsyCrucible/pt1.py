@@ -9,8 +9,6 @@ EAST = ">"
 WEST = "<"
 
 def main():
-    print("Day 17 pt 1.")
-
     map = []
     with open("input.txt", "r") as input:
         for line in input:
@@ -63,5 +61,4 @@ def opposite_direction(direction):
     elif direction == WEST:
         return EAST
     
-
 main()
