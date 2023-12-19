@@ -24,8 +24,7 @@ def main():
         
         vertices.append(new_vertex)
     
-    
-    # Shoelace formula
+    # Shoelace formula / Pick's theorem
     sum = 0
     for i in range(len(vertices) - 1):
         next_y = vertices[i + 1].y if i + 1 < len(vertices) else vertices[-1].y
@@ -39,3 +38,10 @@ def get_direction(char):
     return ("R" if char == "0" else "D" if char == "1" else "L" if char == "2" else "U")
 
 main()
+
+'''
+The shoe lace formula is used to find the area of a polygon given its integer coordinates.
+In a grid like this where the entire grid cell is a point that we want to include, we end up shy of the true area
+Thus we need to apply pick's theorem as well
+
+'''
