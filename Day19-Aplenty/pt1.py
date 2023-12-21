@@ -70,6 +70,7 @@ def process_part(nodes, part, accepted):
                     part.status = REJECTED
                 else:
                     c = nodes[rule]
+                    
                 break
 
             if matches:
