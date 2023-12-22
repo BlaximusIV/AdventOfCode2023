@@ -19,8 +19,7 @@ def main():
             map.append(chars)
 
     i, j = find_s(map)
-    target_steps = 64
-
+    target_steps = 200
     count = find_location_count(P(0, i, j), map, target_steps)
 
     end = time.time()
@@ -58,10 +57,9 @@ def find_location_count(start, map, target_steps):
 
 def get_neighbors(y, x, map):
     neighbors = []
-    for ny, nx in [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]:
-        if ny >= 0 and ny < len(map) and nx >=0 and nx < len(map[0]):
-            if map[ny][nx] != "#":
-                neighbors.append((ny, nx))
+    for ny, nx in [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]:    
+        if map[ny % len(map)][nx % len(map[0])] != "#":
+            neighbors.append((ny, nx))
 
     return neighbors
 
