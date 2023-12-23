@@ -65,3 +65,5 @@ def count_combinations(nodes, ranges, name):
     return total
 
 main()
+
+# Basically we're still traversing the list, but summing the products of each viable range when we reach an 'A' 'node'

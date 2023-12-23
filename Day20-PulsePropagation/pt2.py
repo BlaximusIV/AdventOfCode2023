@@ -1,5 +1,6 @@
 from collections import namedtuple
 from queue import Queue
+import math
 
 BROADCASTER = "broadcaster"
 OUTPUT = "output"
@@ -23,8 +24,8 @@ def main():
     
     populate_conjunction_states(nodes)
 
-    count = find_btn_count(nodes)
-
+    (final_feed,) = [name for name, node in nodes.items() if "rx" in node.destinations]
+    count = find_btn_count(nodes, final_feed)
     print(f'Lowest button count to low rx: {count}')
 
 def parse_node(line):
@@ -49,8 +50,11 @@ def populate_conjunction_states(nodes):
                 if i.name in j.destinations:
                     i.state[j.name] = 0 
 
+
 # TODO: Try seeing how often the nodes leading to rx have the necessary input
-def find_btn_count(nodes):
+def find_btn_count(nodes, target_name):
+    seen_counts = { name: 0 for name, node in nodes.items() if target_name in node.destinations}
+    cycles = {}
     q = Queue()
     button_count = 0
     while True:
@@ -59,13 +63,22 @@ def find_btn_count(nodes):
         while not q.empty():
             pulse = q.get()
             
-            if pulse.destination == "rx" and pulse.frequency == 0:
-                return button_count
-
             if not pulse.destination in nodes:
                 continue
 
             node = nodes[pulse.destination]
+
+            if node.name == target_name and pulse.frequency == 1:
+                seen_counts[pulse.source] += 1
+
+                if pulse.source not in cycles:
+                    cycles[pulse.source] = button_count
+                
+                if all(seen_counts.values()):
+                    x = 1
+                    for cycle in cycles.values():
+                        x = x * cycle // math.gcd(x, cycle)
+                    return x
 
             # if node is broadcaster
             if node.type == BROADCASTER:
