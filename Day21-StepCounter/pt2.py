@@ -1,66 +1,65 @@
-from collections import namedtuple
-from queue import Queue
-import time
+from collections import deque
 
-# point, steps, y, x
-P = namedtuple('P', ['s', 'y', 'x'])
+grid = open().read().splitlines()
 
-def main():
-    start = time.time()
-    map = []
-    with open("input.txt", "r") as f:
-        lines = f.readlines()
+sr, sc = next((r, c) for r, row in enumerate(grid) for c, ch in enumerate(row) if ch == "S")
 
-        for line in lines:
-            line = line.strip("\n")
-            chars = []
-            for char in line:
-                chars.append(char)
-            map.append(chars)
+assert len(grid) == len(grid[0])
 
-    i, j = find_s(map)
-    target_steps = 200
-    count = find_location_count(P(0, i, j), map, target_steps)
+size = len(grid)
+steps = 26501365
 
-    end = time.time()
-    print(f'Total possible positions: {count}')
-    print(f'Total time: {end - start}s')
+assert sr == sc == size // 2
+assert steps % size == size // 2
 
-def find_s(map):
-    for i in range(len(map) - 1):
-        for j in range(len(map[0]) - 1):
-            if map[i][j] == "S":
-                return i, j
+def fill(sr, sc, ss):
+    ans = set()
+    seen = {(sr, sc)}
+    q = deque([(sr, sc, ss)])
 
-def find_location_count(start, map, target_steps):
-    steps = []
-    seen = set()
-    q = Queue()
-    seen.add(start)
-    q.put(start)
-    while not q.empty():
-        p = q.get()
+    while q:
+        r, c, s = q.popleft()
 
-        if p.s == target_steps:
-            steps.append(p)
+        if s % 2 == 0:
+            ans.add((r, c))
+        if s == 0:
             continue
 
-        neighbors = get_neighbors(p.y, p.x, map)
-        for neighbor in neighbors:
-            point = P(p.s + 1, neighbor[0], neighbor[1])
-
-            if point not in seen:
-                seen.add(point)
-                q.put(point)
+        for nr, nc in [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]:
+            if nr < 0 or nr >= len(grid) or nc < 0 or nc >= len(grid[0]) or grid[nr][nc] == "#" or (nr, nc) in seen:
+                continue
+            seen.add((nr, nc))
+            q.append((nr, nc, s - 1))
     
-    return len(steps)
+    return len(ans)
 
-def get_neighbors(y, x, map):
-    neighbors = []
-    for ny, nx in [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]:    
-        if map[ny % len(map)][nx % len(map[0])] != "#":
-            neighbors.append((ny, nx))
+grid_width = steps // size - 1
 
-    return neighbors
+odd = (grid_width // 2 * 2 + 1) ** 2
+even = ((grid_width + 1) // 2 * 2) ** 2
 
-main()
+odd_points = fill(sr, sc, size * 2 + 1)
+even_points = fill(sr, sc, size * 2)
+
+corner_t = fill(size - 1, sc, size - 1)
+corner_r = fill(sr, 0, size - 1)
+corner_b = fill(0, sc, size - 1)
+corner_l = fill(sr, size - 1, size - 1)
+
+small_tr = fill(size - 1, 0, size // 2 - 1)
+small_tl = fill(size - 1, size - 1, size // 2 - 1)
+small_br = fill(0, 0, size // 2 - 1)
+small_bl = fill(0, size - 1, size // 2 - 1)
+
+large_tr = fill(size - 1, 0, size * 3 // 2 - 1)
+large_tl = fill(size - 1, size - 1, size * 3 // 2 - 1)
+large_br = fill(0, 0, size * 3 // 2 - 1)
+large_bl = fill(0, size - 1, size * 3 // 2 - 1)
+
+print(
+    odd * odd_points +
+    even * even_points +
+    corner_t + corner_r + corner_b + corner_l +
+    (grid_width + 1) * (small_tr + small_tl + small_br + small_bl) +
+    grid_width * (large_tr + large_tl + large_br + large_bl)
+)
